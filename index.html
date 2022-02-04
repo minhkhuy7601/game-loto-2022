@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;1,100;1,300;1,400;1,700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
+    <title>Loto</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Lato", sans-serif;
+        font-family: "Poppins", sans-serif;
+      }
+      @media only screen and (max-width: 576px) {
+        .image {
+          text-align: center;
+        }
+
+        .main-side {
+          /* border: 1px solid #35858b; */
+          width: 90%;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        .btn {
+          background-color: #fff;
+          outline: none;
+          padding: 8px 10px;
+          border-radius: 5px;
+          font-size: 16px;
+          font-weight: 600;
+          border: none;
+        }
+        #newGameButton {
+          width: 50%;
+          color: #fff;
+          background-color: #4fbdba;
+          margin-bottom: 30px;
+          /* border: 2px solid #35858b; */
+        }
+        .group {
+          /* border: 1px solid red; */
+          background-color: rgba(255, 239, 161, 0.5);
+          border-radius: 10px;
+          width: 100%;
+          display: flex;
+          padding: 0 10px;
+          height: 100px;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .group input {
+          height: 30%;
+          width: 63%;
+          border-radius: 5px;
+          border: 1px solid #564a4a;
+        }
+
+        #joinGameButton {
+          background-color: #4aa96c;
+          color: #fff;
+          width: 35%;
+        }
+
+        .container {
+          width: 90%;
+          margin: 0 auto;
+        }
+        .roomName {
+          font-size: 18px;
+          font-weight: 500;
+        }
+        .box-color {
+          margin-top: 20px;
+          display: flex;
+          justify-content: space-around;
+        }
+        .item-color {
+          width: 50px;
+          height: 50px;
+          background-color: red;
+          border-radius: 50%;
+        }
+        .item-color.color1 {
+          background-color: #3d84b8;
+        }
+        .item-color.color2 {
+          background-color: #ffc900;
+        }
+        .item-color.color3 {
+          background-color: #fa4eab;
+        }
+        .item-color.color4 {
+          background-color: #3e7c17;
+        }
+        .item-color.color5 {
+          background-color: #ff1700;
+        }
+        .box-info {
+          border: 3px solid #ffeead;
+          padding: 5px 0;
+          text-align: center;
+          border-radius: 20px;
+          margin-bottom: 20px;
+        }
+
+        #image-loto {
+          width: 60%;
+        }
+        .container {
+          width: 90%;
+          margin: 0 auto;
+        }
+        .roomName {
+          font-size: 18px;
+          font-weight: 500;
+        }
+        .box-color {
+          margin-top: 20px;
+          display: flex;
+          justify-content: space-around;
+        }
+
+        .box-info {
+          border: 3px solid #ffeead;
+          padding: 5px 0;
+          text-align: center;
+          border-radius: 20px;
+          margin-bottom: 20px;
+        }
+        .box-info .list-player {
+          font-size: 12px;
+        }
+
+        .game-play {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+          grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+          grid-gap: 2px;
+        }
+        .game-play .item {
+          /* width: 50px;
+          height: 50px; */
+          border: 1px solid #3d84b8;
+          aspect-ratio: 1;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 20px;
+          font-weight: 500;
+          border-radius: 5px;
+        }
+
+        .game-play .item.active {
+          background-color: #3d84b8;
+          color: #fff;
+        }
+        .number-called {
+          display: flex;
+          flex-wrap: wrap;
+          padding: 10px;
+          border-radius: 5px;
+          background-color: #eef2ff;
+          margin-top: 10px;
+          min-height: 50px;
+        }
+        .number-called .item-number {
+          font-size: 16px;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          border-radius: 50%;
+          font-weight: 800;
+          margin-right: 5px;
+          background-color: #f7ecde;
+          margin-bottom: 5px;
+        }
+
+        .number-called .item-number.red {
+          border: 4px solid #dd4a48;
+          color: #dd4a48;
+        }
+        .number-called .item-number.green {
+          border: 4px solid #519259;
+          color: #519259;
+        }
+        .box-buttons {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .btn-start {
+          width: 50%;
+          color: #fff;
+          background-color: #4fbdba;
+          /* border: 2px solid #35858b; */
+        }
+        .container-grid {
+          margin-top: 10px;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .container-grid .grid-item {
+          aspect-ratio: 1;
+          text-align: center;
+        }
+        .container-grid .grid-item .player-game {
+          width: 90%;
+          margin: 0 auto;
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        }
+
+        .container-grid .grid-item .player-game .cell {
+          border: 1px solid #557c55;
+          aspect-ratio: 1;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 13px;
+          border-radius: 2px;
+          background-color: #f2ffe9;
+        }
+
+        .container-grid .grid-item .player-game .cell.active {
+          background-color: #557c55;
+          color: #fff;
+        }
+        #screenWin {
+          position: absolute;
+          z-index: 100;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(61, 133, 184, 0.8);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-weight: 800;
+          font-size: 40px;
+          color: #fff;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="image">
+        <img src="./images/loto.jpg" alt="" id="image-loto" />
+      </div>
+      <div class="main-side">
+        <button id="newGameButton" class="btn">Tạo phòng mới</button>
+        <div class="group">
+          <input type="text" id="gameCodeInput" />
+          <button id="joinGameButton" class="btn">Vào phòng</button>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const newGameBtn = document.getElementById("newGameButton");
+    const joinGameBtn = document.getElementById("joinGameButton");
+    const gameCodeInput = document.getElementById("gameCodeInput");
+    const body = document.querySelector("body");
+    const screenWin = document.getElementById("screenWin");
+    let players = [];
+    // const list;
+
+    newGameBtn.addEventListener("click", newGame);
+    joinGameBtn.addEventListener("click", joinGame);
+
+    // MASTER FLOW
+    socket.on("updateList", (data) => {
+      updateAmount(data);
+    });
+
+    function newGame() {
+      socket.emit("newGame");
+      socket.on("gameCode", (data) => init(data));
+    }
+
+    function init(roomName) {
+      body.innerHTML = UIAdmin(roomName);
+      let boxButtons = document.querySelector(".box-buttons");
+      let btnStart = document.querySelector(".btn-start");
+      btnStart.addEventListener("click", () => {
+        if (btnStart) {
+          socket.emit("startGame", roomName);
+          boxButtons.innerHTML = `<button class="btn-call btn-start btn">Kêu loto</button>`;
+          socket.on("allPlayer", ({ players }) => {
+            // console.log(players);
+            let containerGrid = document.querySelector(".container-grid");
+            let text = "";
+            for (let i = 1; i < players.length; i++) {
+              let temp = "";
+              for (let j = 0; j < 5; j++) {
+                for (let k = 0; k < 5; k++) {
+                  if (players[i].Lotos[j][k].flag) {
+                    temp += `<div class="cell active">${players[i].Lotos[j][k].value}</div>`;
+                  } else {
+                    temp += `<div class="cell">${players[i].Lotos[j][k].value}</div>`;
+                  }
+                }
+              }
+
+              text += `
+              <div class="grid-item">
+                <p>${players[i].name}</p>
+                <div class="player-game">
+                  ${temp}
+                </div>
+               </div>
+              `;
+            }
+            containerGrid.innerHTML = text;
+          });
+
+          let btnCall = document.querySelector(".btn-call");
+          btnCall.addEventListener("click", () => {
+            socket.emit("callNumber", roomName);
+          });
+        }
+      });
+    }
+
+    function UIAdmin(roomName) {
+      return `   <div class="container">
+      <div class="image">
+        <img src="./images/loto.jpg" alt="" id="image-loto" />
+      </div>
+      <div class="box-info">
+        <h1 class="roomName">Mã phòng: <span>${roomName}</span></h1>
+        <p class="inRoom">Số người trong phòng: <span>1</span></p>
+        <p class="list-player">(
+          <span></span>)
+        </p>
+      </div>
+      <div class="box-buttons">
+        <button class="btn-start btn">Bắt đầu</button>
+      </div>
+      <div class="number-called">
+      </div>
+      <div class="container-grid">
+      </div>
+    </div>`;
+    }
+
+    function updateAmount(data) {
+      let amount = document.querySelector(".inRoom span");
+      let list = document.querySelector(".list-player span");
+      if (amount) {
+        amount.textContent = data.length;
+      }
+      if (list) {
+        let text = "";
+        for (let i = 1; i < data.length; i++) {
+          text += data[i].name + ", ";
+        }
+        list.textContent = text;
+      }
+    }
+    // PLAYER FLOW
+    let namePlayer = "Ẩn danh";
+    let colorTheme = "";
+    let lotos = [];
+    let numbers = [];
+    let room = "";
+    function joinGame() {
+      const code = gameCodeInput.value;
+      socket.emit("joinGame", code);
+    }
+
+    socket.on("fail", () => {
+      alert("Mã phòng không tồn tại!!!");
+    });
+
+    socket.on("success", ({ roomName }) => {
+      let name = prompt("Tên bạn là gì ?");
+      namePlayer = name;
+      room = roomName;
+      socket.emit("namePlayer", { roomName, name });
+      body.innerHTML = UIPlayer(roomName, name);
+    });
+
+    function UIPlayer(roomName, name) {
+      return `<div class="container">
+      <div class="image">
+        <img src="./images/loto.jpg" alt="" id="image-loto" />
+      </div>
+      <div class="box-info">
+        <h1 class="roomName">Mã phòng: <span>${roomName}</span></h1>
+        <p class="inRoom">Số người trong phòng: <span>10</span></p>
+      </div>
+      <div class='notification'>
+        <p>Chào <span>${name}</span>, hãy chọn màu yêu thích của bạn đi nào!</p>
+        <div class="box-color">
+          <div class="item-color color1" c='#3d84b8' v='color1' onClick='chooseColor(this)'></div>
+          <div class="item-color color2" c='#ffc900' v='color2' onClick='chooseColor(this)'></div>
+          <div class="item-color color3" c='#fa4eab' v='color3' onClick='chooseColor(this)'></div>
+          <div class="item-color color4" c='#3e7c17' v='color4' onClick='chooseColor(this)'></div>
+          <div class="item-color color5" c='#ff1700' v='color5' onClick='chooseColor(this)'></div>
+        </div>
+      </div>
+
+      <div class="game-play">
+      </div>
+      <div class="number-called">
+      </div>
+    </div>`;
+    }
+
+    function chooseColor(color) {
+      let c = color.getAttribute("c");
+      let v = color.getAttribute("v");
+      colorTheme = c;
+      let notification = document.querySelector(".notification");
+      if (notification) {
+        notification.innerHTML = `<p>Chào <span>${namePlayer}</span>, vui lòng đợi chủ phòng...</p>
+        <div class="box-color">
+          <div class="item-color ${v}"></div>
+        </div>`;
+      }
+    }
+    socket.on("lotoGamePlay", (data) => {
+      let gamePlay = document.querySelector(".game-play");
+      let notification = document.querySelector(".notification");
+      if (gamePlay) {
+        notification.innerHTML = "";
+        lotos = data;
+        for (let i = 0; i < 5; i++) {
+          for (let j = 0; j < 5; j++) {
+            gamePlay.innerHTML += `<div class="item" row=${i} col=${j} style='border: 1px solid ${colorTheme}' onClick='handleClick(this)'>${lotos[i][j].value}</div>`;
+          }
+        }
+      }
+    });
+
+    socket.on("call", (num) => {
+      let a = ["red", "green"];
+      let random = Math.floor(Math.random() * 2);
+      let numberCalled = document.querySelector(".number-called");
+      numberCalled.innerHTML += `<div class="item-number ${a[random]}">${num}</div>`;
+      numbers.push(num);
+    });
+
+    function handleClick(item) {
+      let num = +item.textContent;
+      if (numbers.includes(num)) {
+        let row = +item.getAttribute("row");
+        let col = +item.getAttribute("col");
+        checkWin(row, col);
+        item.style.backgroundColor = colorTheme;
+        item.style.color = "#fff";
+      }
+    }
+
+    socket.on("winner", (nameWinner) => {
+      let node = `<div id="screenWin">${nameWinner} WIN!!!</div>`;
+      body.innerHTML += node;
+    });
+
+    function checkWin(row, col) {
+      lotos[row][col].flag = true;
+      socket.emit("progress", { lotos, room });
+      //check rows
+      let checkRow = true;
+      let checkCol = true;
+      let checkCross = true;
+      for (let i = 0; i < 5; i++) {
+        if (!lotos[row][i].flag) {
+          checkRow = false;
+        }
+      }
+      //check cols
+      for (let i = 0; i < 5; i++) {
+        if (!lotos[i][col].flag) {
+          checkCol = false;
+        }
+      }
+      //check cross
+      for (i = 0; i < 5; i++) {
+        if (!lotos[i][i].flag) {
+          checkCross = false;
+        }
+        if (!lotos[i][4 - i].flag) {
+          checkCross = false;
+        }
+      }
+      if (checkRow || checkCol || checkCross) {
+        let node = `<div id="screenWin">YOU WIN!!!</div>`;
+        body.innerHTML += node;
+        socket.emit("win", room);
+      }
+      //check cols
+    }
+  </script>
+</html>
