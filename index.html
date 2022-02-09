@@ -10,6 +10,13 @@
       href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;1,100;1,300;1,400;1,700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,900&display=swap"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
     <title>Loto</title>
     <style>
       * {
@@ -142,6 +149,7 @@
           text-align: center;
           border-radius: 20px;
           margin-bottom: 20px;
+          position: relative;
         }
         .box-info .list-player {
           font-size: 12px;
@@ -213,6 +221,18 @@
           background-color: #4fbdba;
           /* border: 2px solid #35858b; */
         }
+        .btn-call {
+          width: 50%;
+          color: #fff;
+          background-color: #4fbdba;
+          /* border: 2px solid #35858b; */
+        }
+        .btn-ready {
+          width: 50%;
+          color: #fff;
+          background-color: #4fbdba;
+          /* border: 2px solid #35858b; */
+        }
         .container-grid {
           margin-top: 10px;
           display: grid;
@@ -259,6 +279,85 @@
           font-weight: 800;
           font-size: 40px;
           color: #fff;
+          text-align: center;
+        }
+        #screenWin.red {
+          background-color: rgba(221, 94, 105, 0.8);
+        }
+        .queue-players {
+          margin: 10px 0;
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          grid-gap: 5px;
+        }
+        .queue-players .item-player {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          background-color: #f4eeff;
+          border-radius: 10px;
+          padding: 5px 0;
+        }
+        .queue-players .item-player i {
+          font-size: 40px;
+          color: #424874;
+          margin: 8px 0;
+        }
+        .queue-players .item-player .state {
+          font-size: 12px;
+          border-radius: 10px;
+          padding: 0 8px;
+          color: #fff;
+          font-weight: 500;
+        }
+        .queue-players .item-player .state.false {
+          background-color: #ff6363;
+        }
+        .queue-players .item-player .state.true {
+          background-color: #4e9f3d;
+        }
+        .back-btn {
+          position: absolute;
+          padding: 3px 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          left: 3%;
+          border: 2px solid red;
+          border-radius: 5px;
+          color: red;
+        }
+        .box-queue {
+          position: fixed;
+          /* border: 1px solid blue;   */
+          width: 150px;
+          right: 20px;
+          top: 50px;
+        }
+        .box-queue .item {
+          display: block;
+          margin: 5px 0;
+          background-color: rgba(61, 133, 184, 0.8);
+          padding: 3px 10px;
+          color: #fff;
+          font-weight: 800;
+          border-radius: 5px;
+          animation: slideInLeft ease-in-out 0.5s, fadeAway 0.5s 2s forwards;
+        }
+        @keyframes slideInLeft {
+          from {
+            opacity: 0;
+            transform: translateX(calc(100% + 20px));
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+
+        @keyframes fadeAway {
+          to {
+            opacity: 0;
+          }
         }
       }
     </style>
@@ -285,136 +384,161 @@
     const gameCodeInput = document.getElementById("gameCodeInput");
     const body = document.querySelector("body");
     const screenWin = document.getElementById("screenWin");
-    let players = [];
-    // const list;
+    const container = document.querySelector(".container");
+    const boxQueue = document.querySelector(".box-queue");
+    let playersInRoom = [];
+    let namePlayer = "";
+    let colorTheme = "#3d84b8";
+    let lotos = [];
+    let numbers = [];
+    let room = "";
 
     newGameBtn.addEventListener("click", newGame);
     joinGameBtn.addEventListener("click", joinGame);
 
     // MASTER FLOW
     socket.on("updateList", (data) => {
-      updateAmount(data);
+      playersInRoom = data;
+      updateAmount();
+    });
+    socket.on("reload", () => {
+      alert("Chủ phòng mất kết nối");
+      location.reload();
+    });
+
+    socket.on("closeWin", (name) => {
+      let boxQueue = document.querySelector(".box-queue");
+      let node = document.createElement("div");
+      node.classList.add("item");
+      node.textContent = `${name} hò`;
+      boxQueue.appendChild(node);
+      setTimeout(() => {
+        node.remove();
+      }, 2000);
     });
 
     function newGame() {
       socket.emit("newGame");
-      socket.on("gameCode", (data) => init(data));
+      socket.on("gameCode", (roomName) => {
+        namePlayer = "Chủ phòng";
+        room = roomName;
+        init();
+      });
     }
 
-    function init(roomName) {
-      body.innerHTML = UIAdmin(roomName);
-      let boxButtons = document.querySelector(".box-buttons");
-      let btnStart = document.querySelector(".btn-start");
+    function init() {
+      body.innerHTML = UIAdmin();
+      let boxButtons = document.querySelector(".container.admin .box-buttons");
+      let btnStart = document.querySelector(".container.admin .btn-start");
+      let btnBack = document.querySelector(".back-btn");
+      btnBack.addEventListener("click", () => {
+        location.reload();
+      });
       btnStart.addEventListener("click", () => {
         if (btnStart) {
-          socket.emit("startGame", roomName);
-          boxButtons.innerHTML = `<button class="btn-call btn-start btn">Kêu loto</button>`;
-          socket.on("allPlayer", ({ players }) => {
-            // console.log(players);
-            let containerGrid = document.querySelector(".container-grid");
-            let text = "";
-            for (let i = 1; i < players.length; i++) {
-              let temp = "";
-              for (let j = 0; j < 5; j++) {
-                for (let k = 0; k < 5; k++) {
-                  if (players[i].Lotos[j][k].flag) {
-                    temp += `<div class="cell active">${players[i].Lotos[j][k].value}</div>`;
-                  } else {
-                    temp += `<div class="cell">${players[i].Lotos[j][k].value}</div>`;
-                  }
-                }
-              }
-
-              text += `
-              <div class="grid-item">
-                <p>${players[i].name}</p>
-                <div class="player-game">
-                  ${temp}
-                </div>
-               </div>
-              `;
+          let flag = true;
+          playersInRoom["players"].forEach((val) => {
+            if (val.state === false) {
+              flag = false;
             }
-            containerGrid.innerHTML = text;
           });
-
-          let btnCall = document.querySelector(".btn-call");
-          btnCall.addEventListener("click", () => {
-            socket.emit("callNumber", roomName);
-          });
+          if (!flag) {
+            alert("Các thành viên chưa sẵn sàng!");
+          } else {
+            socket.emit("startGame", room);
+            boxButtons.innerHTML = `<button class="btn-call btn">Gọi số</button>`;
+            let btnCall = document.querySelector(".container.admin .btn-call");
+            btnCall.addEventListener("click", () => {
+              socket.emit("callNumber", room);
+            });
+          }
         }
       });
     }
 
-    function UIAdmin(roomName) {
-      return `   <div class="container">
+    function UIAdmin() {
+      return `
+      <div class="box-queue"></div>   <div class="container admin">
       <div class="image">
         <img src="./images/loto.jpg" alt="" id="image-loto" />
       </div>
       <div class="box-info">
-        <h1 class="roomName">Mã phòng: <span>${roomName}</span></h1>
+        <h1 class="roomName">Mã phòng: <span>${room}</span></h1>
+        <p class="namePlayer">Chào <strong>Chủ phòng</strong></p>
         <p class="inRoom">Số người trong phòng: <span>1</span></p>
-        <p class="list-player">(
-          <span></span>)
-        </p>
+        <div class='back-btn'><i class="fas fa-long-arrow-alt-left"></i></div>
       </div>
       <div class="box-buttons">
         <button class="btn-start btn">Bắt đầu</button>
       </div>
+      <div class="queue-players"></div>
       <div class="number-called">
       </div>
-      <div class="container-grid">
-      </div>
+      <div class="game-play"></div>
+
     </div>`;
     }
 
-    function updateAmount(data) {
+    function updateAmount() {
       let amount = document.querySelector(".inRoom span");
-      let list = document.querySelector(".list-player span");
+      let list = document.querySelector(".queue-players");
       if (amount) {
-        amount.textContent = data.length;
+        amount.textContent = playersInRoom["players"].length;
       }
-      if (list) {
+      if (list && !playersInRoom["playing"]) {
         let text = "";
-        for (let i = 1; i < data.length; i++) {
-          text += data[i].name + ", ";
-        }
-        list.textContent = text;
+        playersInRoom["players"].forEach((val) => {
+          let s = "";
+          if (!val.state) {
+            s = "Đang chọn màu";
+          } else {
+            s = "Sẵn sàng";
+          }
+          text += `<div class="item-player">
+          <span>${val.name}</span>
+          <i class="fas fa-user-secret"></i>
+          <div class="state ${val.state}">${s}</div>
+        </div>`;
+        });
+        list.innerHTML = text;
       }
     }
     // PLAYER FLOW
-    let namePlayer = "Ẩn danh";
-    let colorTheme = "";
-    let lotos = [];
-    let numbers = [];
-    let room = "";
+
     function joinGame() {
       const code = gameCodeInput.value;
       socket.emit("joinGame", code);
     }
 
-    socket.on("fail", () => {
-      alert("Mã phòng không tồn tại!!!");
+    socket.on("fail", ({ message }) => {
+      alert(message);
     });
 
     socket.on("success", ({ roomName }) => {
       let name = prompt("Tên bạn là gì ?");
-      namePlayer = name;
+      if (!name) {
+        name = "Ẩn danh";
+      }
+      namePlayer = name.slice(0, 10);
       room = roomName;
-      socket.emit("namePlayer", { roomName, name });
-      body.innerHTML = UIPlayer(roomName, name);
+      socket.emit("namePlayer", { roomName, name: namePlayer });
+      body.innerHTML = UIPlayer();
     });
 
-    function UIPlayer(roomName, name) {
-      return `<div class="container">
+    function UIPlayer() {
+      return `
+      <div class="box-queue"></div><div class="container">
       <div class="image">
         <img src="./images/loto.jpg" alt="" id="image-loto" />
       </div>
       <div class="box-info">
-        <h1 class="roomName">Mã phòng: <span>${roomName}</span></h1>
-        <p class="inRoom">Số người trong phòng: <span>10</span></p>
+        <h1 class="roomName">Mã phòng: <span>${room}</span></h1>
+        <p class="namePlayer">Chào <strong>${namePlayer}</strong></p>
+        <p class="inRoom">Số người trong phòng: <span></span></p>
+        <div class='back-btn'><i class="fas fa-long-arrow-alt-left" onClick="clickBack()"></i></div>
       </div>
       <div class='notification'>
-        <p>Chào <span>${name}</span>, hãy chọn màu yêu thích của bạn đi nào!</p>
+        <p>Hãy chọn màu yêu thích của bạn đi nào!</p>
         <div class="box-color">
           <div class="item-color color1" c='#3d84b8' v='color1' onClick='chooseColor(this)'></div>
           <div class="item-color color2" c='#ffc900' v='color2' onClick='chooseColor(this)'></div>
@@ -423,31 +547,44 @@
           <div class="item-color color5" c='#ff1700' v='color5' onClick='chooseColor(this)'></div>
         </div>
       </div>
-
-      <div class="game-play">
-      </div>
+      <div class="game-play"></div>
       <div class="number-called">
       </div>
     </div>`;
     }
 
+    function clickBack() {
+      location.reload();
+    }
+
     function chooseColor(color) {
+      socket.emit("ready", room);
       let c = color.getAttribute("c");
       let v = color.getAttribute("v");
       colorTheme = c;
       let notification = document.querySelector(".notification");
       if (notification) {
-        notification.innerHTML = `<p>Chào <span>${namePlayer}</span>, vui lòng đợi chủ phòng...</p>
+        notification.innerHTML = `<p>Màu của bạn</p>
         <div class="box-color">
           <div class="item-color ${v}"></div>
         </div>`;
+        let container = document.querySelector(".container");
+        container.innerHTML += `
+        <div class="queue-players"></div>
+
+        `;
+        updateAmount();
       }
     }
     socket.on("lotoGamePlay", (data) => {
       let gamePlay = document.querySelector(".game-play");
+      let queuePlayers = document.querySelector(".queue-players");
       let notification = document.querySelector(".notification");
       if (gamePlay) {
-        notification.innerHTML = "";
+        if (notification) {
+          notification.innerHTML = "";
+        }
+        queuePlayers.innerHTML = "";
         lotos = data;
         for (let i = 0; i < 5; i++) {
           for (let j = 0; j < 5; j++) {
@@ -458,10 +595,12 @@
     });
 
     socket.on("call", (num) => {
-      let a = ["red", "green"];
-      let random = Math.floor(Math.random() * 2);
+      let c = "red";
+      if (+num > 25) {
+        c = "green";
+      }
       let numberCalled = document.querySelector(".number-called");
-      numberCalled.innerHTML += `<div class="item-number ${a[random]}">${num}</div>`;
+      numberCalled.innerHTML += `<div class="item-number ${c}">${num}</div>`;
       numbers.push(num);
     });
 
@@ -470,14 +609,28 @@
       if (numbers.includes(num)) {
         let row = +item.getAttribute("row");
         let col = +item.getAttribute("col");
-        checkWin(row, col);
         item.style.backgroundColor = colorTheme;
         item.style.color = "#fff";
+        checkWin(row, col);
       }
+    }
+    function playAgain() {
+      socket.on("again", (data) => {
+        lotos = [];
+        numbers = [];
+        if (namePlayer == "Chủ phòng") {
+          init();
+          playersInRoom = data;
+          updateAmount();
+        } else {
+          body.innerHTML = UIPlayer();
+        }
+      });
+      socket.emit("playAgain", room);
     }
 
     socket.on("winner", (nameWinner) => {
-      let node = `<div id="screenWin">${nameWinner} WIN!!!</div>`;
+      let node = `<div id="screenWin" class="red" onClick='playAgain()'>${nameWinner} đã chiến thắng (.~.) Chúc bạn may mắn lần sau!</div>`;
       body.innerHTML += node;
     });
 
@@ -487,32 +640,55 @@
       //check rows
       let checkRow = true;
       let checkCol = true;
-      let checkCross = true;
+      let checkCross1 = true;
+      let checkCross2 = true;
+      let preRow = 0;
+      let preCol = 0;
+      let preCross1 = 0;
+      let preCross2 = 0;
       for (let i = 0; i < 5; i++) {
         if (!lotos[row][i].flag) {
           checkRow = false;
+        } else {
+          preRow++;
         }
       }
       //check cols
       for (let i = 0; i < 5; i++) {
         if (!lotos[i][col].flag) {
           checkCol = false;
+        } else {
+          preCol++;
         }
       }
       //check cross
       for (i = 0; i < 5; i++) {
         if (!lotos[i][i].flag) {
-          checkCross = false;
+          checkCross1 = false;
+        } else {
+          preCross1++;
         }
         if (!lotos[i][4 - i].flag) {
-          checkCross = false;
+          checkCross2 = false;
+        } else {
+          preCross2++;
         }
       }
-      if (checkRow || checkCol || checkCross) {
-        let node = `<div id="screenWin">YOU WIN!!!</div>`;
+      if (checkRow || checkCol || checkCross1 || checkCross2) {
+        let node = `<div id="screenWin" onClick='playAgain()'>Gom tiền!!!</div>`;
         body.innerHTML += node;
         socket.emit("win", room);
+      } else {
+        if (
+          preRow === 4 ||
+          preCol === 4 ||
+          preCross1 === 4 ||
+          preCross2 === 4
+        ) {
+          socket.emit("closeWin", { room, namePlayer });
+        }
       }
+
       //check cols
     }
   </script>
